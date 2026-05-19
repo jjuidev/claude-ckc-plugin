@@ -1,41 +1,63 @@
 # claude-ckc-plugin
 
-**Claude Kit Custom (`ckc`)** — companion plugin for [claudekit](https://github.com/anthropics/claude-code), bundling custom skills under the `/ckc:*` namespace.
+**Claude Kit Custom (`ckc`)** — companion skills for [claudekit](https://github.com/anthropics/claude-code) under the `/ckc:*` namespace.
+
+**Dual distribution**: Claude Code plugin marketplace **+** [`npx skills`](https://github.com/vercel-labs/skills) CLI (works with OpenCode, Codex, Cursor, and 50+ agents).
 
 Maintained by [jjuidev](https://github.com/jjuidev).
 
 ## Prerequisites
 
-- [Claude Code](https://code.claude.com/docs) ≥ 2.x (Plugins GA)
-- **claudekit** installed — `ckc` skills call shared skills (`docs-seeker`, `html-anything`, `ai-multimodal`) and the shared Python venv at `~/.claude/skills/.venv/bin/python3`.
+- Claude Code ≥ 2.x (Plugins GA) **or** any agent supported by `npx skills`
+- **claudekit** installed — `ckc` skills depend on shared assets (`docs-seeker`, `html-anything`, `ai-multimodal`) and the shared Python venv at `~/.claude/skills/.venv/bin/python3`
 
 ## Install
 
-### From GitHub (after publish)
+### A. Claude Code (plugin marketplace)
 
 ```bash
-# Inside Claude Code
+# From GitHub (after publish)
 /plugin marketplace add jjuidev/claude-ckc-plugin
-/plugin install ckc
+/plugin install ckc@ckc-marketplace
+
+# Local development
+/plugin marketplace add /Users/tandm/Documents/jjuidev/npm/ai-skills/claude-ckc-plugin
+/plugin install ckc@ckc-marketplace
 ```
 
-### Local development
+Update flow:
 
 ```bash
-claude --plugin-dir /Users/tandm/Documents/jjuidev/npm/ai-skills/claude-ckc-plugin
+/plugin marketplace update ckc-marketplace
+/plugin update ckc
 ```
 
-After editing any skill:
+### B. OpenCode / Codex / Cursor / others (via `npx skills`)
 
+```bash
+# From GitHub (after publish)
+npx skills add jjuidev/claude-ckc-plugin -a opencode -g
+
+# Local development
+npx skills add /Users/tandm/Documents/jjuidev/npm/ai-skills/claude-ckc-plugin -a opencode -g
 ```
-/reload-plugins
-```
+
+Install targets (global mode):
+
+| Agent | Path |
+|---|---|
+| OpenCode | `~/.agents/skills/ckc-learn/` |
+| Claude Code | `~/.claude/skills/ckc-learn/` |
+| Codex | `~/.codex/skills/ckc-learn/` |
+| Cursor | `~/.cursor/skills/ckc-learn/` |
+
+Default mode is `copy`. To re-install after updates, re-run the command.
 
 ## Skills included
 
 | Skill | Description |
 |---|---|
-| `/ckc:learn` | Learn a library/framework via structured research. Modes: `quick`, `full`, `detail`, `overview`, `cheatsheet`. Supports URL input and `--md`/`--html` output. |
+| `ckc:learn` | Learn a library/framework via structured research. Modes: `quick`, `full`, `detail`, `overview`, `cheatsheet`. Supports URL input and `--md`/`--html` output. |
 
 ## Usage examples
 
@@ -48,29 +70,29 @@ After editing any skill:
 
 ## Add a new skill
 
-1. Create `plugins/ckc/skills/<skill-name>/SKILL.md` with YAML frontmatter (`description:` required).
+1. Create `plugins/ckc/skills/<skill-name>/SKILL.md` with YAML frontmatter (`name:` and `description:` required).
 2. Drop assets into `plugins/ckc/skills/<skill-name>/references/`, `scripts/`, etc.
-3. Reference assets with `${CLAUDE_PLUGIN_ROOT}/skills/<skill-name>/...`.
+3. **Reference assets with relative paths** (e.g. `references/foo.md`, `scripts/bar.py`) — works in both Claude Code plugin runtime and `npx skills` installs. Avoid `${CLAUDE_PLUGIN_ROOT}` for cross-tool compatibility.
 4. Bump `version` in `plugins/ckc/.claude-plugin/plugin.json`.
-5. Commit & push — users get update via `/plugin update ckc`.
+5. Commit & push.
 
 ## Structure
 
 ```
 .claude-plugin/
-  marketplace.json          # marketplace catalog
+  marketplace.json          # Claude Code marketplace catalog
 plugins/
   ckc/
     .claude-plugin/
       plugin.json           # plugin manifest
     skills/
       learn/
-        SKILL.md
+        SKILL.md            # name: ckc:learn
         references/
         scripts/
 ```
 
-This repo is a **marketplace containing one plugin** (`ckc`). To add more plugins later, drop them under `plugins/<name>/` and register them in `.claude-plugin/marketplace.json`.
+Marketplace containing a single plugin (`ckc`). Add more plugins under `plugins/<name>/` and register in `.claude-plugin/marketplace.json`.
 
 ## License
 

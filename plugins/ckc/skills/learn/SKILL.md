@@ -1,4 +1,5 @@
 ---
+name: ckc:learn
 description: "Learn technologies, libraries, frameworks through structured research. Use when user says 'learn X', 'tell me about X', 'overview of X', 'detail X', 'cheatsheet X', 'full X', or provides a URL. Generates comparisons, code examples, cheat sheets."
 argument-hint: "[quick|full|detail|overview|cheatsheet] [topic-or-url] [--md|--html]"
 metadata:
@@ -44,8 +45,11 @@ flowchart TD
 Run the classifier script to parse user input:
 
 ```bash
-~/.claude/skills/.venv/bin/python3 ${CLAUDE_PLUGIN_ROOT}/skills/learn/scripts/classify-input.py "$ARGUMENTS"
+# Path relative to this SKILL.md folder
+~/.claude/skills/.venv/bin/python3 scripts/classify-input.py "$ARGUMENTS"
 ```
+
+> Resolve `scripts/classify-input.py` to absolute path of this skill folder before executing. The skill folder is the directory containing this SKILL.md (auto-detected by the agent runtime).
 
 Parse JSON output: `{mode, topic, html, url}`.
 
@@ -53,7 +57,7 @@ If `mode: "none"` → use `AskUserQuestion` to ask user what they want to learn.
 
 ## Step 2: Route by Mode
 
-Load `${CLAUDE_PLUGIN_ROOT}/skills/learn/references/input-routing.md` for full routing logic.
+Load `references/input-routing.md` for full routing logic.
 
 **Quick reference:**
 
@@ -67,7 +71,7 @@ Load `${CLAUDE_PLUGIN_ROOT}/skills/learn/references/input-routing.md` for full r
 
 ## Step 3: Execute Research
 
-Load `${CLAUDE_PLUGIN_ROOT}/skills/learn/references/research-strategy.md` for detailed research plan.
+Load `references/research-strategy.md` for detailed research plan.
 
 1. **Phase A**: Activate `docs-seeker` skill with topic → fetch official docs
 2. **Phase B**: Run parallel `WebSearch` calls per mode (see research-strategy.md for query templates)
@@ -77,7 +81,7 @@ If URL was provided → already fetched via `mcp__web_reader__webReader` in rout
 
 ## Step 4: Generate Output
 
-Load the appropriate `${CLAUDE_PLUGIN_ROOT}/skills/learn/references/output-{mode}.md` template.
+Load the appropriate `references/output-{mode}.md` template.
 
 Fill template sections with research results. Follow the template structure exactly.
 

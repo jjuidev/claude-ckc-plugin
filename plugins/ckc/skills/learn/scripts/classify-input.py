@@ -18,15 +18,27 @@ INTENT_MAP = {
     "strict": "full",
     "full": "full",
     "hard": "full",
+    # Vietnamese: full
+    "đầy đủ": "full",
+    "toàn bộ": "full",
+    "kỹ lưỡng": "full",
     # Detail keywords → detail mode + HTML
     "deep dive": "detail",
     "detail": "detail",
     "deep": "detail",
+    # Vietnamese: detail
+    "chi tiết": "detail",
+    "sâu": "detail",
+    "kỹ": "detail",
     # Overview → overview mode (MD terminal)
     "overview": "overview",
+    # Vietnamese: overview
+    "tổng quan": "overview",
     # Cheatsheet → cheatsheet mode + HTML
     "cheatsheet": "cheatsheet",
     "cheat": "cheatsheet",
+    # Vietnamese: cheatsheet
+    "tóm tắt": "cheatsheet",
     # Natural language → quick mode
     "tell me about": "quick",
     "tell me": "quick",
@@ -34,7 +46,8 @@ INTENT_MAP = {
 }
 
 # Keywords that force quick mode (MD terminal, lightweight)
-QUICK_KEYWORDS = {"fast", "quick", "brief", "simple", "short"}
+# Includes Vietnamese: nhanh, gọn, ngắn
+QUICK_KEYWORDS = {"fast", "quick", "brief", "simple", "short", "nhanh", "gọn", "ngắn"}
 
 # Modes that default to HTML output
 HTML_MODES = {"full", "detail", "cheatsheet"}
@@ -81,7 +94,13 @@ def classify(raw_input: str) -> dict:
 
 
 def _resolve_mode(text: str) -> str:
-    """Check if text contains quick keywords → quick mode, else full."""
+    """Resolve mode from text. Checks INTENT_MAP first, then QUICK_KEYWORDS, else full."""
+    # Check INTENT_MAP keywords (longest match first) — preserves detail/overview/cheatsheet intent
+    for keyword, mode in sorted(INTENT_MAP.items(), key=lambda x: -len(x[0])):
+        pattern = re.compile(r'\b' + re.escape(keyword) + r'\b', re.IGNORECASE)
+        if pattern.search(text):
+            return mode
+    # Fallback: quick keywords → quick, else full
     words = set(text.lower().split())
     if words & QUICK_KEYWORDS:
         return "quick"
